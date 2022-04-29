@@ -13,46 +13,71 @@ def shuffle_string(word):
     shuffle(char_list)
     return "".join(char_list)
 
+def file_to_memory(file_name, encoding="utf-8"):
+    '''
 
-user_name = input("Введите Ваше имя: ")  # запоминаем имя
+    :param file_name: имя файла для чтения
+    :param encoding: кодировка файла
+    :return: (str) Возвращает список со всеми строками из файла
+    '''
+    with open(file_name, encoding=encoding) as file:
+        file_lines = file.readlines()
 
-points = 0
+    return file_lines
 
-print("Введите stop для завершения игры\n")  # подсказываем как закончить игру
+def append_str_to_file(file_name, line, encoding="utf-8"):
+    '''
 
-with open("words.txt", encoding="utf-8") as words:  # открываем файл со словами в режиме чтения
-    for line in words:  # перебираем по линиям
-        word = line.rstrip()  # забираем линию в переменную, отрезав в конце /n
-        shuffled_word = shuffle_string(word) #шафлим функцией
+    :param file_name: имя открываемого файла
+    :param line: строка для добавления
+    :param encoding: кодировка в файле
+    :return:
+    '''
 
-        user_answer = input(f"Угадайте слово: {shuffled_word} \n")
+    with open(file_name, "a", encoding=encoding) as file:  # открываем файл в режиме append
+        file.write(line)
+    return
 
-        if user_answer == "stop": #единственная возможность выхода пользователя
+
+# основное тело программы
+def main():
+    user_name = input("Введите Ваше имя: ")  # запоминаем имя
+
+    points = 0 # очки пользователя = 0
+
+    print("Введите stop для завершения игры\n")  # подсказываем как закончить игру
+
+    words_content = file_to_memory("words.txt") #считали файл в память
+
+    for word in words_content:
+        origin_word = word.rstrip() #обрезь
+        shuffled_word = shuffle_string(origin_word) #перемешали
+
+        user_answer = input(f"Угадайте слово: {shuffled_word} \n") #считали версию
+
+        if user_answer == "stop":  # единственная возможность выхода пользователя
             break
-        elif user_answer == word: #если угадал
+        elif user_answer == origin_word:  # если угадал
             print("Верно! Вы получаете 10 очков")
             points += 10
-        else: #если не угадал
-            print(f"Неверно. Верный ответ - {word}")
+        else:  # если не угадал
+            print(f"Неверно. Верный ответ - {origin_word}")
 
+    append_str_to_file("history.txt", f"\n{user_name}  {points}")# дописываем в файл history инфу игрок-очки
 
-with open("history.txt", "a", encoding="utf-8") as history:  # дописываем в файл игрок-очки
-    history.write(f"\n{user_name}  {points}")
+    max_points = -1
+    lines_count = 0
 
-
-max_points = -1
-lines_count = 0
-with open("history.txt", encoding="utf-8") as history:  #открываем или создаем history.txt, чтение
-    for lines in history:
-        lines_count += 1 #счётчик на количество линий (линии = игры)
-        name, points = lines.rstrip().split('  ') #распаковываем список на имя\очки
+    history_content = file_to_memory("history.txt")
+    for line in history_content:
+        lines_count += 1  # счётчик на количество линий (линии = игры)
+        name, points = line.rstrip().split('  ')  # распаковываем список на имя\очки
         if int(points) > max_points:
-            max_points = int(points) #записываем текущие очки как рекорд, если они больше чем уже записано
+            max_points = int(points)  # записываем текущие очки как рекорд, если они больше чем уже записано
 
 
+    print(f"Всего игр сыграно: {lines_count}")
+    print(f"Максимальный рекорд: {max_points}")
 
-print(f"Всего игр сыграно: {lines_count}")
-print(f"Максимальный рекорд: {max_points}")
-
-
-
+if __name__ == "__main__":
+    main()

@@ -6,3 +6,6 @@ sam  0
 last?  50
 Ваня  0
 Mozart  110
+John2904  20
+JohnAndFather  30
+Аферук  40
